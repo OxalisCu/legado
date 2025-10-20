@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/overlay_root"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:padding="8dp"
+    tools:background="@android:color/transparent">
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_voice_assistant"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:contentDescription="语音助手"
+        android:src="@drawable/ic_mic"
+        app:backgroundTint="@color/md_black_1000"
+        app:elevation="0dp"
+        app:fabSize="normal"
+        app:pressedTranslationZ="0dp"
+        app:tint="@color/md_white_1000"
+        app:useCompatPadding="false"
+        tools:ignore="ContentDescription" />
+
+</FrameLayout>

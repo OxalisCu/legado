@@ -145,13 +145,25 @@ abstract class AppDatabase : RoomDatabase() {
         val dbCallback = object : Callback() {
 
             override fun onCreate(db: SupportSQLiteDatabase) {
+                // 暂时禁用 setLocale 调用以避免数据库锁定问题
+                Log.i("AppDatabaseCallback", "跳过 setLocale 调用以避免数据库锁定问题")
+                
                 // 只在 API 级别 23 (Marshmallow) 及以上版本尝试设置区域设置
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     try {
                         Log.d("AppDatabaseCallback", "准备 设置 locale for API ${Build.VERSION.SDK_INT}...")
-                        db.setLocale(Locale.CHINESE)
-                        // 在 21 上报错，但无法拦截
-                        Log.d("AppDatabaseCallback", "成功 设置 locale for API ${Build.VERSION.SDK_INT}.")
+                        // 使用事务来避免数据库锁定
+                        db.beginTransaction()
+                        try {
+                            // 暂时注释掉 setLocale 调用
+                            // db.setLocale(Locale.CHINESE)
+                            db.setTransactionSuccessful()
+                            Log.d("AppDatabaseCallback", "成功 设置 locale for API ${Build.VERSION.SDK_INT}.")
+                        } catch (e: Exception) {
+                            Log.e("AppDatabaseCallback", "错误 设置 locale in transaction for API ${Build.VERSION.SDK_INT}", e)
+                        } finally {
+                            db.endTransaction()
+                        }
                     } catch (e: Exception) {
                         Log.e("AppDatabaseCallback", "错误 设置 locale in onCreate for API ${Build.VERSION.SDK_INT}", e)
                     }

@@ -36,6 +36,8 @@ preference = "1.2.1"
 protobufJavalite = "4.26.1"
 quickChineseTransfer = "0.2.16"
 room = "2.7.1"
+speechengine_tob = "0.0.8.1-bugfix"
+#speechengine_tob = "0.0.3"
 splitties = "3.0.0"
 rhino = "1.8.0"
 desugar = "2.1.5"
@@ -128,6 +130,7 @@ avif = { module = "org.aomedia.avif.android:avif", version = "1.1.1.14d8e3c4" }
 glide-svg = { module = "com.github.qoqa:glide-svg", version = "4.0.2" }
 androidsvg = { module = "com.caverock:androidsvg-aar", version = "1.4" }
 
+speechengine_tob = { module = "com.bytedance.speechengine:speechengine_tob", version.ref = "speechengine_tob" }
 splitties-appctx = { module = "com.louiscad.splitties:splitties-appctx", version.ref = "splitties" }
 splitties-activities = { module = "com.louiscad.splitties:splitties-activities", version.ref = "splitties" }
 splitties-systemservices = { module = "com.louiscad.splitties:splitties-systemservices", version.ref = "splitties" }
