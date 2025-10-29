@@ -2,7 +2,11 @@
 
 package io.legado.app.ui.main
 
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.text.format.DateUtils
 import android.view.MenuItem
 import android.view.MotionEvent
@@ -52,6 +56,9 @@ import io.legado.app.utils.shouldHideSoftInput
 import io.legado.app.utils.showDialogFragment
 import io.legado.app.utils.toastOnUi
 import io.legado.app.utils.viewbindingdelegate.viewBinding
+import io.legado.app.model.VoiceAssistant
+import io.legado.app.service.VoiceAssistantService
+import io.legado.app.ui.widget.VoiceAssistantView
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -87,11 +94,13 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     private val onUpBooksBadgeView by lazy {
         binding.bottomNavigationView.addBadgeView(0)
     }
+    private var voiceAssistantFloatingView: VoiceAssistantView? = null
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         upBottomMenu()
         initView()
         upHomePage()
+        initVoiceAssistant()
         onBackPressedDispatcher.addCallback(this) {
             if (pagePosition != 0) {
                 binding.viewPagerMain.currentItem = 0
@@ -326,6 +335,7 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
 
     override fun onDestroy() {
         super.onDestroy()
+        cleanupVoiceAssistant()
         Coroutine.async {
             BookHelp.clearInvalidCache()
         }
@@ -468,4 +478,46 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
 
     }
 
+    private fun initVoiceAssistant() {
+        try {
+            // API 23 及以上需要检查悬浮窗权限
+            val canShowOverlay = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Settings.canDrawOverlays(this)
+            } else {
+                // API 23 以下不需要悬浮窗权限，直接允许
+                true
+            }
+
+            if (canShowOverlay) {
+                // 创建并显示浮动窗口（默认非激活状态）
+                voiceAssistantFloatingView = VoiceAssistantView(this)
+                voiceAssistantFloatingView?.show()
+
+                toastOnUi("语音助手浮动窗口已启用")
+            } else {
+                toastOnUi("需要悬浮窗权限才能使用语音助手")
+                // 引导用户开启悬浮窗权限
+                requestOverlayPermission()
+            }
+        } catch (e: Exception) {
+            toastOnUi("语音助手启动失败: ${e.message}")
+        }
+    }
+
+    private fun requestOverlayPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName"))
+            startActivity(intent)
+        }
+    }
+
+    private fun cleanupVoiceAssistant() {
+        try {
+            voiceAssistantFloatingView?.hide()
+            voiceAssistantFloatingView = null
+        } catch (e: Exception) {
+            // 忽略清理时的错误
+        }
+    }
 }

@@ -22,4 +22,7 @@ object IntentAction {
     const val init = "init"
     const val remove = "remove"
     const val stopPlay = "stopPlay"
+
+    const val startAssistant = "startAssistant"
+    const val stopAssistant = "stopAssistant"
 }

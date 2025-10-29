@@ -33,4 +33,10 @@ object EventBus {
     const val EXPORT_BOOK = "exportBook"
     const val UP_MANGA_CONFIG = "upMangaConfig"
     const val PLAY_MODE_CHANGED = "playModeChanged"
+
+    // Voice assistant events
+    const val VOICE_PARTIAL_RESULT = "voicePartialResult"
+    const val VOICE_FINAL_RESULT = "voiceFinalResult"
+    const val VOICE_ERROR = "voiceError"
+    const val VOICE_RECORDING_STATE = "voiceRecordingState" // Boolean: true=start, false=stop
 }
