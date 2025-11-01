@@ -7,9 +7,7 @@ import android.util.AttributeSet
 import android.view.Gravity
 import io.legado.app.constant.AppLog
 import android.view.LayoutInflater
-import android.view.View
 import android.view.WindowManager
-import android.view.MotionEvent
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -68,7 +66,6 @@ class VoiceAssistantView @JvmOverloads constructor(
         if (isShowing) return
 
         try {
-//            VoiceAssistant.register(this)
             createFloatingView()
             windowManager?.addView(this, params)
             isShowing = true
@@ -85,7 +82,6 @@ class VoiceAssistantView @JvmOverloads constructor(
         if (!isShowing) return
 
         try {
-//            VoiceAssistant.unregister(this)
             windowManager?.removeView(this)
             isShowing = false
             AppLog.put("语音助手浮动窗口已隐藏")

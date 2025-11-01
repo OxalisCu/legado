@@ -136,6 +136,12 @@
                 android:name="com.samsung.android.support.REMOTE_ACTION"
                 android:resource="@xml/spen_remote_actions" />
         </activity>
+        
+        <!-- 语音助手界面 -->
+        <activity
+            android:name=".ui.assistant.VoiceAssistantActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.Transparent" />
 
         <!-- 阅读漫画界面 -->
         <activity

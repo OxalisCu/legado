@@ -1,11 +1,17 @@
 package io.legado.app.model
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
+import io.legado.app.constant.EventBus
 import io.legado.app.constant.IntentAction
 
 import io.legado.app.utils.startService
 import io.legado.app.service.VoiceAssistantService
+import io.legado.app.ui.assistant.VoiceAssistantActivity
+import io.legado.app.ui.login.SourceLoginActivity
+import io.legado.app.utils.postEvent
+import io.legado.app.utils.startActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancelChildren
@@ -49,21 +55,34 @@ object VoiceAssistant : CoroutineScope by MainScope() {
             context.startService<VoiceAssistantService> {
                 action = IntentAction.stopAssistant
             }
+//            if (context is VoiceAssistantActivity) {
+//                (context as VoiceAssistantActivity).moveTaskToBack(true)
+//            }
             recording = false
         } else {
             context.startService<VoiceAssistantService> {
                 action = IntentAction.startAssistant
             }
+            context.startActivity<VoiceAssistantActivity>()
             recording = true
         }
+        postEvent(EventBus.VOICE_RECORDING_STATE, recording)
     }
 
     fun isRecording(): Boolean {
         return recording
     }
 
+    fun onResult(result: String, status: Int) {
+        activityContext?.let {
+            if (it is Callback) {
+                it.onResult(result, status)
+            }
+        }
+    }
+
     // implemented by voice assistant activity to display text
     interface Callback {
-        fun onResult(result: String)
+        fun onResult(result: String, status: Int)
     }
 }
