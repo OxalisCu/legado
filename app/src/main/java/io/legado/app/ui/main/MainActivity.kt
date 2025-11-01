@@ -56,8 +56,6 @@ import io.legado.app.utils.shouldHideSoftInput
 import io.legado.app.utils.showDialogFragment
 import io.legado.app.utils.toastOnUi
 import io.legado.app.utils.viewbindingdelegate.viewBinding
-import io.legado.app.model.VoiceAssistant
-import io.legado.app.service.VoiceAssistantService
 import io.legado.app.ui.widget.VoiceAssistantView
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch

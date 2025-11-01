@@ -10,10 +10,10 @@ import com.iflytek.sparkchain.core.asr.AsrCallbacks
 import io.legado.app.base.BaseService
 import io.legado.app.constant.IntentAction
 import io.legado.app.help.assistant.AudioRecorder
-import io.legado.app.model.VoiceAssistant
+import io.legado.app.model.ASRAssistant
 import java.util.concurrent.atomic.AtomicBoolean
 
-class VoiceAssistantService : BaseService(), AsrCallbacks, AudioRecorder.AudioDataCallback {
+class ASRAssistantService : BaseService(), AsrCallbacks, AudioRecorder.AudioDataCallback {
 
     private val TAG = "ASR"
 
@@ -138,7 +138,7 @@ class VoiceAssistantService : BaseService(), AsrCallbacks, AudioRecorder.AudioDa
             "result={begin:" + begin + ",end:" + end + ",status:" + status + ",result:" + result + ",sid:" + sid + "}"
         Log.d(TAG, info)
 
-        VoiceAssistant.onResult(result, status)
+        ASRAssistant.onResult(result, status)
     }
 
     override fun onError(asrError: ASR.ASRError, o: Any) {

@@ -1,17 +1,15 @@
 package io.legado.app.model
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import io.legado.app.constant.EventBus
 import io.legado.app.constant.IntentAction
 
-import io.legado.app.utils.startService
-import io.legado.app.service.VoiceAssistantService
+import io.legado.app.service.ASRAssistantService
 import io.legado.app.ui.assistant.VoiceAssistantActivity
-import io.legado.app.ui.login.SourceLoginActivity
 import io.legado.app.utils.postEvent
 import io.legado.app.utils.startActivity
+import io.legado.app.utils.startService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancelChildren
@@ -19,7 +17,7 @@ import splitties.init.appCtx
 
 @SuppressLint("StaticFieldLeak")
 @Suppress("unused")
-object VoiceAssistant : CoroutineScope by MainScope() {
+object ASRAssistant : CoroutineScope by MainScope() {
 
     var activityContext: Context? = null
         private set
@@ -52,7 +50,7 @@ object VoiceAssistant : CoroutineScope by MainScope() {
 
     fun toggle(context: Context) {
         if (recording) {
-            context.startService<VoiceAssistantService> {
+            context.startService<ASRAssistantService> {
                 action = IntentAction.stopAssistant
             }
 //            if (context is VoiceAssistantActivity) {
@@ -60,7 +58,7 @@ object VoiceAssistant : CoroutineScope by MainScope() {
 //            }
             recording = false
         } else {
-            context.startService<VoiceAssistantService> {
+            context.startService<ASRAssistantService> {
                 action = IntentAction.startAssistant
             }
             context.startActivity<VoiceAssistantActivity>()

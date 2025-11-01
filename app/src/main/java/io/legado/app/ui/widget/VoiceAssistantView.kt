@@ -12,7 +12,7 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import io.legado.app.R
-import io.legado.app.model.VoiceAssistant
+import io.legado.app.model.ASRAssistant
 import io.legado.app.constant.EventBus
 import io.legado.app.utils.eventObservable
 
@@ -107,7 +107,7 @@ class VoiceAssistantView @JvmOverloads constructor(
 
         // 点击切换：直接调用 VoiceAssistant 单例的切换方法
         setOnClickListener {
-            VoiceAssistant.toggle(context)
+            ASRAssistant.toggle(context)
         }
 
         // 订阅录音状态事件，实时更新UI
@@ -118,7 +118,7 @@ class VoiceAssistantView @JvmOverloads constructor(
         }
 
         // 初始状态 - 根据当前服务状态
-        updateVoiceButtonState(VoiceAssistant.isRecording())
+        updateVoiceButtonState(ASRAssistant.isRecording())
     }
 
     /**

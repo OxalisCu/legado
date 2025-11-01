@@ -8,13 +8,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import io.legado.app.utils.viewbindingdelegate.viewBinding
 import io.legado.app.constant.EventBus
 import io.legado.app.base.VMBaseActivity
-import io.legado.app.model.VoiceAssistant
+import io.legado.app.model.ASRAssistant
 import io.legado.app.utils.observeEventSticky
 import io.legado.app.databinding.ActivityVoiceAssistantBinding
 
 class VoiceAssistantActivity :
     VMBaseActivity<ActivityVoiceAssistantBinding, VoiceAssistantViewModel>(),
-    VoiceAssistant.Callback {
+    ASRAssistant.Callback {
 
     override val binding by viewBinding(ActivityVoiceAssistantBinding::inflate)
     override val viewModel by viewModels<VoiceAssistantViewModel>()
@@ -24,7 +24,7 @@ class VoiceAssistantActivity :
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
-        VoiceAssistant.register(this)
+        ASRAssistant.register(this)
         viewModel.messages.observe(this) { messageList ->
             Log.d("VoiceAssistantActivity", "Messages updated: $messageList")
             adapter.setItems(messageList)
@@ -40,7 +40,7 @@ class VoiceAssistantActivity :
         // 设置 RecyclerView
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         adapter.bindToRecyclerView(binding.recyclerView)
-        
+
         // support user text input
         binding.btnSend.setOnClickListener {
             val text = binding.etInput.text.toString()
@@ -60,7 +60,7 @@ class VoiceAssistantActivity :
 
     override fun onDestroy() {
         super.onDestroy()
-        VoiceAssistant.unregister(this)
+        ASRAssistant.unregister(this)
     }
 
     override fun onResult(result: String, status: Int) {
