@@ -47,7 +47,7 @@ class VoiceAssistantActivity :
         binding.btnSend.setOnClickListener {
             val text = binding.etInput.text.toString()
             if (text.isNotBlank()) {
-                val message = ChatMessage(text, true)
+                val message = ChatMessage(text, true, 2)
                 viewModel.addNewMessage(message)
                 binding.etInput.setText("")
             }
@@ -69,10 +69,14 @@ class VoiceAssistantActivity :
     override fun onResult(result: String, status: Int) {
         // support user stt
         runOnUiThread {
-            val message = ChatMessage(result, true)
-            when (status) {
-                0 -> viewModel.addNewMessage(message)
-                else -> viewModel.editLastMessage(message)
+            val message = ChatMessage(result, true, status)
+            val lastMessage = viewModel.getLastMessage()
+            if (lastMessage != null && lastMessage.status != 2) {
+                // edit last message
+                viewModel.editLastMessage(message)
+            } else {
+                // add new message
+                viewModel.addNewMessage(message)
             }
         }
         if (status == 2) {
@@ -85,10 +89,14 @@ class VoiceAssistantActivity :
     override fun onLLMResult(result: String, status: Int) {
         // support LLM response
         runOnUiThread {
-            val message = ChatMessage(result, false)
-            when (status) {
-                0 -> viewModel.addNewMessage(message)
-                else -> viewModel.editLastMessage(message)
+            val message = ChatMessage(result, false, status)
+            val lastMessage = viewModel.getLastMessage()
+            if (lastMessage != null && lastMessage.status != 2) {
+                // edit last message
+                viewModel.editLastMessage(message)
+            } else {
+                // add new message
+                viewModel.addNewMessage(message)
             }
         }
     }

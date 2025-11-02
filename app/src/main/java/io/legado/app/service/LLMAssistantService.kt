@@ -10,6 +10,7 @@ import com.iflytek.sparkchain.core.LLMEvent
 import com.iflytek.sparkchain.core.LLMFactory
 import com.iflytek.sparkchain.core.LLMResult
 import com.iflytek.sparkchain.core.Memory
+import com.iflytek.sparkchain.core.LLMTools
 import io.legado.app.base.BaseService
 import io.legado.app.constant.IntentAction
 import io.legado.app.model.LLMAssistant
@@ -20,6 +21,10 @@ class LLMAssistantService : BaseService(), LLMCallbacks {
     private var userTag = 0
 
     private var sessionFinished = true
+
+    private val llmTools by lazy {
+        getFunctionCallPrompt()
+    }
 
     private lateinit var llm: LLM
 
@@ -58,6 +63,7 @@ class LLMAssistantService : BaseService(), LLMCallbacks {
         llm = LLMFactory.textGeneration(llmConfig, token_memory)
 //        llm.addSystemPrompt("你是一位专业的语文老师,回答不超过二十字");
         llm.registerLLMCallbacks(this)
+        getFunctionCallPrompt()
     }
 
     private fun runLLM(msg: String) {
@@ -73,7 +79,7 @@ class LLMAssistantService : BaseService(), LLMCallbacks {
             TAG, "用户输入：" + msg
         )
         userTag++
-        val ret = llm.arun(msg, userTag)
+        val ret = llm.arun(msg, llmTools, userTag)
         if (ret != 0) {
             Log.e(
                 TAG, "SparkChain failed:\n" + ret
@@ -85,6 +91,13 @@ class LLMAssistantService : BaseService(), LLMCallbacks {
 
     private fun stopLLM() {
         llm.stop()
+    }
+
+    private fun getFunctionCallPrompt(): LLMTools {
+        val tools = LLMTools()
+        tools.type = "functions"
+        tools.description = LLMAssistant.buildToolsJson()
+        return tools
     }
 
     override fun onLLMResult(llmResult: LLMResult, o: Any?) {
@@ -100,11 +113,13 @@ class LLMAssistantService : BaseService(), LLMCallbacks {
             val promptTokens = llmResult.getPromptTokens() //包含历史问题的总Tokens大小
             val totalTokens =
                 llmResult.getTotalTokens() //promptTokens和completionTokens的和，也是本次交互计费的Tokens大小
+            val functionCall = llmResult.getFunctionCall() //获取函数调用信息，要求SDK1.1.5版本以后才能使用
 
             Log.d(TAG, "onLLMResult\n")
             Log.d(TAG, "onLLMResult sid:" + sid)
             Log.e(TAG, "onLLMResult:" + content)
             Log.e(TAG, "onLLMResultRaw:" + rawResult)
+            Log.e(TAG, "functionCall:" + functionCall)
 
             if (status == 2) { //2表示大模型结果返回完成
                 Log.e(
@@ -113,7 +128,7 @@ class LLMAssistantService : BaseService(), LLMCallbacks {
                 )
                 sessionFinished = true
             }
-            LLMAssistant.onLLMResult(content, status)
+            LLMAssistant.onLLMResult(content, functionCall, status)
         }
     }
 

@@ -12,6 +12,7 @@ plugins {
     alias libs.plugins.room
     alias libs.plugins.ksp
     alias libs.plugins.google.services
+    alias libs.plugins.kotlin.serialization
 }
 apply from: 'download.gradle'
 
@@ -168,6 +169,8 @@ dependencies {
     //noinspection GradleDependency,DifferentStdlibGradleVersion
     //implementation(libs.kotlin.reflect)
 
+    //kotlinx serialization
+    implementation(libs.kotlinx.serialization.json)
 
     //协程
     //def coroutines_version = '1.7.3'

@@ -27,4 +27,8 @@ class VoiceAssistantViewModel(application: Application) : BaseViewModel(applicat
             }
         }
     }
+
+    fun getLastMessage(): ChatMessage? {
+        return _messages.value?.lastOrNull()
+    }
 }
