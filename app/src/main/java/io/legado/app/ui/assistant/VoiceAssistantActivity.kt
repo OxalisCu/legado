@@ -11,10 +11,11 @@ import io.legado.app.base.VMBaseActivity
 import io.legado.app.model.ASRAssistant
 import io.legado.app.utils.observeEventSticky
 import io.legado.app.databinding.ActivityVoiceAssistantBinding
+import io.legado.app.model.LLMAssistant
 
 class VoiceAssistantActivity :
     VMBaseActivity<ActivityVoiceAssistantBinding, VoiceAssistantViewModel>(),
-    ASRAssistant.Callback {
+    ASRAssistant.Callback, LLMAssistant.Callback {
 
     override val binding by viewBinding(ActivityVoiceAssistantBinding::inflate)
     override val viewModel by viewModels<VoiceAssistantViewModel>()
@@ -25,6 +26,7 @@ class VoiceAssistantActivity :
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         ASRAssistant.register(this)
+        LLMAssistant.register(this)
         viewModel.messages.observe(this) { messageList ->
             Log.d("VoiceAssistantActivity", "Messages updated: $messageList")
             adapter.setItems(messageList)
@@ -61,12 +63,29 @@ class VoiceAssistantActivity :
     override fun onDestroy() {
         super.onDestroy()
         ASRAssistant.unregister(this)
+        LLMAssistant.unregister(this)
     }
 
     override fun onResult(result: String, status: Int) {
         // support user stt
         runOnUiThread {
             val message = ChatMessage(result, true)
+            when (status) {
+                0 -> viewModel.addNewMessage(message)
+                else -> viewModel.editLastMessage(message)
+            }
+        }
+        if (status == 2) {
+            // 完成识别，发送给 LLM 处理
+            Log.d("VoiceAssistantActivity", "Sending to LLM: $result")
+            LLMAssistant.startChat(result)
+        }
+    }
+
+    override fun onLLMResult(result: String, status: Int) {
+        // support LLM response
+        runOnUiThread {
+            val message = ChatMessage(result, false)
             when (status) {
                 0 -> viewModel.addNewMessage(message)
                 else -> viewModel.editLastMessage(message)

@@ -136,7 +136,7 @@
                 android:name="com.samsung.android.support.REMOTE_ACTION"
                 android:resource="@xml/spen_remote_actions" />
         </activity>
-        
+
         <!-- 语音助手界面 -->
         <activity
             android:name=".ui.assistant.VoiceAssistantActivity"
@@ -497,6 +497,9 @@
             android:foregroundServiceType="dataSync" />
         <service
             android:name=".service.ASRAssistantService"
+            android:foregroundServiceType="dataSync" />
+        <service
+            android:name=".service.LLMAssistantService"
             android:foregroundServiceType="dataSync" />
 
         <receiver

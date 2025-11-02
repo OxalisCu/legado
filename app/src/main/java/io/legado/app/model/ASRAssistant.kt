@@ -51,7 +51,7 @@ object ASRAssistant : CoroutineScope by MainScope() {
     fun toggle(context: Context) {
         if (recording) {
             context.startService<ASRAssistantService> {
-                action = IntentAction.stopAssistant
+                action = IntentAction.stopASRAssistant
             }
 //            if (context is VoiceAssistantActivity) {
 //                (context as VoiceAssistantActivity).moveTaskToBack(true)
@@ -59,7 +59,7 @@ object ASRAssistant : CoroutineScope by MainScope() {
             recording = false
         } else {
             context.startService<ASRAssistantService> {
-                action = IntentAction.startAssistant
+                action = IntentAction.startASRAssistant
             }
             context.startActivity<VoiceAssistantActivity>()
             recording = true

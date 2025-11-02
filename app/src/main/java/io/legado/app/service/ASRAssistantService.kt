@@ -38,11 +38,11 @@ class ASRAssistantService : BaseService(), AsrCallbacks, AudioRecorder.AudioData
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.action?.let { action ->
             when (action) {
-                IntentAction.startAssistant -> {
+                IntentAction.startASRAssistant -> {
                     runASR()
                 }
 
-                IntentAction.stopAssistant -> {
+                IntentAction.stopASRAssistant -> {
                     stopASR()
                 }
             }
