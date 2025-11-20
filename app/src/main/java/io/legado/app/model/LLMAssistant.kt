@@ -5,6 +5,7 @@ import android.util.Log
 import android.annotation.SuppressLint
 import android.content.Context
 import io.legado.app.constant.IntentAction
+import io.legado.app.help.TTS
 import io.legado.app.service.BaseReadAloudService
 import io.legado.app.service.LLMAssistantService
 import io.legado.app.service.TTSReadAloudService
@@ -29,6 +30,7 @@ object LLMAssistant : CoroutineScope by MainScope() {
     private val context: Context get() = activityContext ?: serviceContext ?: appCtx
 
     private var answer = ""
+    private val replyTTS = TTS()
 
     fun register(context: Context) {
         activityContext = context
@@ -39,6 +41,7 @@ object LLMAssistant : CoroutineScope by MainScope() {
             activityContext = null
         }
         coroutineContext.cancelChildren()
+        replyTTS.clearTts()
     }
 
     fun registerService(context: Context) {
@@ -116,6 +119,18 @@ object LLMAssistant : CoroutineScope by MainScope() {
             if (it is Callback) {
                 it.onLLMResult(answer, status)
             }
+        }
+        Log.d("LLMAssistant", "Speaking answer111: $answer")
+        val text = toolCall.ifEmpty { answer }
+        if (!text.isEmpty()) {
+            speakAnswer(text)
+        }
+    }
+
+    private fun speakAnswer(text: String) {
+        Log.d("LLMAssistant", "Speaking answer222: $text")
+        if (text.isNotBlank()) {
+            replyTTS.speak(text)
         }
     }
 
