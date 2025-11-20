@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.text.format.DateUtils
+import android.util.Log
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.ViewGroup
@@ -20,6 +21,13 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.iflytek.aikit.core.AiHelper
+import com.iflytek.aikit.core.BaseLibrary
+import com.iflytek.aikit.core.CoreListener
+import com.iflytek.aikit.core.ErrType
+import com.iflytek.sparkchain.core.LogLvl
+import com.iflytek.sparkchain.core.SparkChain
+import com.iflytek.sparkchain.core.SparkChainConfig
 import io.legado.app.BuildConfig
 import io.legado.app.R
 import io.legado.app.base.VMBaseActivity
@@ -57,10 +65,12 @@ import io.legado.app.utils.showDialogFragment
 import io.legado.app.utils.toastOnUi
 import io.legado.app.utils.viewbindingdelegate.viewBinding
 import io.legado.app.ui.widget.VoiceAssistantView
+import io.legado.app.utils.FileUtils
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import splitties.views.bottomPadding
+import java.io.File
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -95,6 +105,7 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     private var voiceAssistantFloatingView: VoiceAssistantView? = null
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
+        initSDK()
         upBottomMenu()
         initView()
         upHomePage()
@@ -120,6 +131,46 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
                 }
             }
         }
+    }
+
+    private fun initSDK() {
+        val appID = ""
+        val apiKey = ""
+        val apiSecret = ""
+
+        val sparkChainConfig = SparkChainConfig.builder()
+        sparkChainConfig.appID(appID).apiKey(apiKey).apiSecret(apiSecret)
+            .logLevel(LogLvl.VERBOSE.getValue())
+        val ret = SparkChain.getInst().init(getApplicationContext(), sparkChainConfig)
+        var res: String
+        if (ret == 0) {
+            res = "SDK初始化成功，错误码: $ret"
+        } else {
+            res = "SDK初始化失败，错误码: $ret"
+        }
+        Log.d("SparkChainInit", res)
+        val workDir = this.getExternalFilesDir(null)
+        Log.d("AIKitInit", "workDir: $workDir")
+        val params: BaseLibrary.Params? =
+            BaseLibrary.Params.builder().appId(appID).apiKey(apiKey).apiSecret(apiSecret)
+                .ability("e867a88f2").workDir(workDir?.absolutePath)
+                .build()
+        AiHelper.getInst().init(getApplicationContext(), params)
+        AiHelper.getInst().registerListener(object : CoreListener {
+            override fun onAuthStateChange(type: ErrType, code: Int) {
+                if (ret == 0) {
+                    res = "SDK初始化成功，错误码: $code，类型: $type"
+                } else {
+                    res = "SDK初始化失败，错误码: $code，类型: $type"
+                }
+                Log.d("AIKitInit", res)
+            }
+        })
+    }
+
+    private fun unInitSDK() {
+        SparkChain.getInst().unInit()
+        AiHelper.getInst().unInit()
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
@@ -334,6 +385,7 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     override fun onDestroy() {
         super.onDestroy()
         cleanupVoiceAssistant()
+        unInitSDK()
         Coroutine.async {
             BookHelp.clearInvalidCache()
         }
@@ -504,8 +556,10 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
 
     private fun requestOverlayPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:$packageName"))
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName")
+            )
             startActivity(intent)
         }
     }

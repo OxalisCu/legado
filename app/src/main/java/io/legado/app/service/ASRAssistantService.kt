@@ -31,7 +31,6 @@ class ASRAssistantService : BaseService(), AsrCallbacks, AudioRecorder.AudioData
 
     override fun onCreate() {
         super.onCreate()
-        initSDK()
         initASR()
     }
 
@@ -52,22 +51,6 @@ class ASRAssistantService : BaseService(), AsrCallbacks, AudioRecorder.AudioData
 
     override fun onDestroy() {
         super.onDestroy()
-        SparkChain.getInst().unInit()
-    }
-
-    private fun initSDK() {
-        val sparkChainConfig = SparkChainConfig.builder()
-        sparkChainConfig.appID("").apiKey("").apiSecret("").logLevel(LogLvl.VERBOSE.getValue())
-        val ret = SparkChain.getInst().init(getApplicationContext(), sparkChainConfig)
-        var res: String
-        if (ret == 0) {
-            res = "SDK初始化成功"
-            isauth = true
-        } else {
-            res = "SDK初始化失败，错误码:" + ret
-            isauth = false
-        }
-        Log.d(TAG, res)
     }
 
     private fun initASR() {

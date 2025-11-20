@@ -23,6 +23,9 @@ object IntentAction {
     const val remove = "remove"
     const val stopPlay = "stopPlay"
 
+    const val startIVWAssistant = "startIVWAssistant"
+    const val stopIVWAssistant = "stopIVWAssistant"
+
     const val startASRAssistant = "startASRAssistant"
     const val stopASRAssistant = "stopASRAssistant"
 

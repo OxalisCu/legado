@@ -14,6 +14,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import io.legado.app.R
 import io.legado.app.model.ASRAssistant
 import io.legado.app.constant.EventBus
+import io.legado.app.model.IVWAssistant
 import io.legado.app.utils.eventObservable
 
 /**
@@ -107,18 +108,23 @@ class VoiceAssistantView @JvmOverloads constructor(
 
         // 点击切换：直接调用 VoiceAssistant 单例的切换方法
         setOnClickListener {
-            ASRAssistant.toggle(context)
+            if (IVWAssistant.isRecording() || ASRAssistant.isRecording()) {
+                IVWAssistant.stop()
+                ASRAssistant.stop()
+            } else {
+                IVWAssistant.start()
+            }
         }
 
         // 订阅录音状态事件，实时更新UI
         (context as? AppCompatActivity)?.let { owner ->
             eventObservable<Boolean>(EventBus.VOICE_RECORDING_STATE).observe(owner) { isRecording ->
-                updateVoiceButtonState(isRecording)
+                updateVoiceButtonState(IVWAssistant.isRecording() || ASRAssistant.isRecording())
             }
         }
 
         // 初始状态 - 根据当前服务状态
-        updateVoiceButtonState(ASRAssistant.isRecording())
+        updateVoiceButtonState(IVWAssistant.isRecording() || ASRAssistant.isRecording())
     }
 
     /**

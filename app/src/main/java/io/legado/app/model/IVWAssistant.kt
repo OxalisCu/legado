@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import io.legado.app.constant.EventBus
 import io.legado.app.constant.IntentAction
-
 import io.legado.app.service.ASRAssistantService
+import io.legado.app.service.IVWAssistantService
 import io.legado.app.ui.assistant.VoiceAssistantActivity
 import io.legado.app.utils.postEvent
 import io.legado.app.utils.startActivity
@@ -18,7 +18,7 @@ import android.util.Log
 
 @SuppressLint("StaticFieldLeak")
 @Suppress("unused")
-object ASRAssistant : CoroutineScope by MainScope() {
+object IVWAssistant : CoroutineScope by MainScope() {
 
     var activityContext: Context? = null
         private set
@@ -32,12 +32,14 @@ object ASRAssistant : CoroutineScope by MainScope() {
 
     fun register(context: Context) {
         activityContext = context
+        Log.d("IVWAssistant", "register context")
     }
 
     fun unregister(context: Context) {
         if (activityContext === context) {
             activityContext = null
         }
+        Log.d("IVWAssistant", "unregister context")
         coroutineContext.cancelChildren()
     }
 
@@ -51,23 +53,24 @@ object ASRAssistant : CoroutineScope by MainScope() {
 
     fun start() {
         if (recording) {
-            Log.d("ASRAssistant", "正在识别中，请勿重复开启\n")
+            Log.d("IVWAssistant", "正在识别中，请勿重复开启\n")
             return
         }
-        context.startService<ASRAssistantService> {
-            action = IntentAction.startASRAssistant
+        context.startService<IVWAssistantService> {
+            action = IntentAction.startIVWAssistant
         }
+        context.startActivity<VoiceAssistantActivity>()
         recording = true
         postEvent(EventBus.VOICE_RECORDING_STATE, recording)
     }
 
     fun stop() {
         if (!recording) {
-            Log.d("ASRAssistant", "未在识别中，无需停止\n")
+            Log.d("IVWAssistant", "未在识别中，无需停止\n")
             return
         }
-        context.startService<ASRAssistantService> {
-            action = IntentAction.stopASRAssistant
+        context.startService<IVWAssistantService> {
+            action = IntentAction.stopIVWAssistant
         }
         recording = false
         postEvent(EventBus.VOICE_RECORDING_STATE, recording)
@@ -77,16 +80,20 @@ object ASRAssistant : CoroutineScope by MainScope() {
         return recording
     }
 
-    fun onResult(result: String, status: Int) {
-        activityContext?.let {
-            if (it is Callback) {
-                it.onResult(result, status)
+    fun onIVWResult(key: String, result: String) {
+        if (!key.isEmpty() && !result.isEmpty()) {
+            Log.d("onIVWResult222", "唤醒结果: key=$key, result=$result")
+            Log.d("onIVWResult222", "${activityContext == null}")
+            activityContext?.let {
+                if (it is IVWAssistant.Callback) {
+                    Log.d("onIVWResult222", "2222")
+                    it.onIVWResult(key, result)
+                }
             }
         }
     }
 
-    // implemented by voice assistant activity to display text
     interface Callback {
-        fun onResult(result: String, status: Int)
+        fun onIVWResult(key: String, result: String)
     }
 }

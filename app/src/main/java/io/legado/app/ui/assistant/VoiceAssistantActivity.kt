@@ -1,21 +1,19 @@
 package io.legado.app.ui.assistant
 
 import android.os.Bundle
-import android.os.Message
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import io.legado.app.utils.viewbindingdelegate.viewBinding
-import io.legado.app.constant.EventBus
 import io.legado.app.base.VMBaseActivity
-import io.legado.app.model.ASRAssistant
-import io.legado.app.utils.observeEventSticky
 import io.legado.app.databinding.ActivityVoiceAssistantBinding
+import io.legado.app.model.ASRAssistant
+import io.legado.app.model.IVWAssistant
 import io.legado.app.model.LLMAssistant
+import io.legado.app.utils.viewbindingdelegate.viewBinding
 
 class VoiceAssistantActivity :
-    VMBaseActivity<ActivityVoiceAssistantBinding, VoiceAssistantViewModel>(),
-    ASRAssistant.Callback, LLMAssistant.Callback {
+    VMBaseActivity<ActivityVoiceAssistantBinding, VoiceAssistantViewModel>(), ASRAssistant.Callback,
+    LLMAssistant.Callback, IVWAssistant.Callback {
 
     override val binding by viewBinding(ActivityVoiceAssistantBinding::inflate)
     override val viewModel by viewModels<VoiceAssistantViewModel>()
@@ -25,6 +23,7 @@ class VoiceAssistantActivity :
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
+        IVWAssistant.register(this)
         ASRAssistant.register(this)
         LLMAssistant.register(this)
         viewModel.messages.observe(this) { messageList ->
@@ -62,6 +61,7 @@ class VoiceAssistantActivity :
 
     override fun onDestroy() {
         super.onDestroy()
+        IVWAssistant.unregister(this)
         ASRAssistant.unregister(this)
         LLMAssistant.unregister(this)
     }
@@ -99,5 +99,17 @@ class VoiceAssistantActivity :
                 viewModel.addNewMessage(message)
             }
         }
+    }
+
+    override fun onIVWResult(key: String, result: String) {
+        Log.d("onIVWResult333", "唤醒结果: key=$key, result=$result")
+
+        IVWAssistant.stop()
+        runOnUiThread {
+            val res = "语音唤醒成功，唤醒词：$key, 识别结果：$result"
+            val message = ChatMessage(res, false, 2)
+            viewModel.addNewMessage(message)
+        }
+        ASRAssistant.start()
     }
 }
